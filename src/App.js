@@ -1,25 +1,74 @@
-import logo from './logo.svg';
-import './App.css';
+import * as React from 'react';
+import { StatusBar } from 'react-native';
+import { registerRootComponent } from 'expo';
+import AppLoading from 'expo-app-loading';
+import { func } from './constants';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+// main navigation stack
+import Stack from './navigation/Stack';
+
+class App extends React.Component {
+  constructor() {
+    super();
+
+    this.state = {
+      currentSongData: {
+        album: 'Swimming',
+        artist: 'Mac Miller',
+        image: 'swimming',
+        length: 312,
+        title: 'So It Goes'
+      },
+      isLoading: true,
+      toggleTabBar: false
+    };
+
+    this.changeSong = this.changeSong.bind(this);
+    this.setToggleTabBar = this.setToggleTabBar.bind(this);
+  }
+
+  setToggleTabBar() {
+    this.setState(({ toggleTabBar }) => ({
+      toggleTabBar: !toggleTabBar
+    }));
+  }
+
+  changeSong(data) {
+    this.setState({
+      currentSongData: data
+    });
+  }
+
+  render() {
+    const { currentSongData, isLoading, toggleTabBar } = this.state;
+
+    if (isLoading) {
+      return (
+        <AppLoading
+          onError={() => {
+            // console.warn
+          }}
+          onFinish={() => this.setState({ isLoading: false })}
+          startAsync={func.loadAssetsAsync}
+        />
+      );
+    }
+
+    return (
+      <React.Fragment>
+        <StatusBar barStyle="light-content" />
+
+        <Stack
+          screenProps={{
+            currentSongData,
+            changeSong: this.changeSong,
+            setToggleTabBar: this.setToggleTabBar,
+            toggleTabBarState: toggleTabBar
+          }}
+        />
+      </React.Fragment>
+    );
+  }
 }
 
-export default App;
+registerRootComponent(App);
